@@ -37,7 +37,18 @@ public class RecordController {
 
   @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
   public void startRecord(String path, Listener listener) throws IOException {
-    mediaMuxer = new MediaMuxer(path, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
+    startRecord(path, listener, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
+  }
+
+
+  /**
+   * @param outputFormat #{@link MediaMuxer.OutputFormat} constant,
+   *                     #{@link MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4} is always supported.
+   *                     #{@link MediaMuxer.OutputFormat.MUXER_OUTPUT_WEBM} is supported when >= api 21.
+   */
+  @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
+  public void startRecord(String path, Listener listener, int outputFormat) throws IOException {
+    mediaMuxer = new MediaMuxer(path, outputFormat);
     this.listener = listener;
     status = Status.STARTED;
     if (listener != null) listener.onStatusChange(status);
@@ -105,6 +116,25 @@ public class RecordController {
         && audioFormat != null) {
       videoTrack = mediaMuxer.addTrack(videoFormat);
       audioTrack = mediaMuxer.addTrack(audioFormat);
+      mediaMuxer.start();
+      status = Status.RECORDING;
+      if (listener != null) listener.onStatusChange(status);
+    } else if (status == Status.RESUMED && videoInfo.flags == MediaCodec.BUFFER_FLAG_KEY_FRAME) {
+      status = Status.RECORDING;
+      if (listener != null) listener.onStatusChange(status);
+    }
+    if (status == Status.RECORDING) {
+      updateFormat(this.videoInfo, videoInfo);
+      mediaMuxer.writeSampleData(videoTrack, videoBuffer, this.videoInfo);
+    }
+  }
+
+  @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
+  public void recordVideoOnly(ByteBuffer videoBuffer, MediaCodec.BufferInfo videoInfo) {
+    if (status == Status.STARTED
+            && videoInfo.flags == MediaCodec.BUFFER_FLAG_KEY_FRAME
+            && videoFormat != null) {
+      videoTrack = mediaMuxer.addTrack(videoFormat);
       mediaMuxer.start();
       status = Status.RECORDING;
       if (listener != null) listener.onStatusChange(status);

@@ -49,13 +49,26 @@ public class VideoEncoder extends BaseEncoder implements GetCameraData {
   private int iFrameInterval = 2;
   //for disable video
   private FpsLimiter fpsLimiter = new FpsLimiter();
-  private String type = CodecUtil.H264_MIME;
+  private String type;
   private FormatVideoEncoder formatVideoEncoder = FormatVideoEncoder.YUV420Dynamical;
   private HandlerThread handlerThread;
   private BlockingQueue<Frame> queue = new ArrayBlockingQueue<>(80);
 
   public VideoEncoder(GetVideoData getVideoData) {
+    this(getVideoData, CodecUtil.H264_MIME);
+  }
+
+  /**
+   * Construct a video encoder with a specific video mimetype.
+   * @param mimeType the desired output video data format.
+   *                 Chosen from #{@link MediaFormat} MIMETYPE_VIDEO_* constants.
+   *                 The caller is responsible for ensuring the format is supported.
+   * @see <a href="https://developer.android.com/guide/topics/media/media-formats">
+   *   Supported media formats by api level</a>
+   */
+  public VideoEncoder(GetVideoData getVideoData, String mimeType) {
     this.getVideoData = getVideoData;
+    this.type = mimeType;
   }
 
   /**

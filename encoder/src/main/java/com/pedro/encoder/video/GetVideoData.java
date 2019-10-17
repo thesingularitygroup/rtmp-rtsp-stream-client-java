@@ -15,7 +15,10 @@ public interface GetVideoData {
 
   void onSpsPpsVps(ByteBuffer sps, ByteBuffer pps, ByteBuffer vps);
 
-  void getVideoData(ByteBuffer h264Buffer, MediaCodec.BufferInfo info);
+  /**
+   * @param encodedVideoBuffer h264 buffer or other encoded video data buffer
+   */
+  void getVideoData(ByteBuffer encodedVideoBuffer, MediaCodec.BufferInfo info);
 
   void onVideoFormat(MediaFormat mediaFormat);
 }
