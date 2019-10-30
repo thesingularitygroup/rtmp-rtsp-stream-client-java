@@ -1,7 +1,5 @@
 package com.pedro.encoder.utils.yuv;
 
-import android.graphics.ColorSpace;
-
 /**
  * Created by pedro on 31/10/18.
  */
@@ -16,10 +14,6 @@ public class NV21Utils {
     preAllocatedBufferColor = new byte[length];
   }
 
-  /**
-   * TODO: does this return int[] in the {@link ColorSpace.Named#SRGB sRGB} color space?
-   *  or is it some other color space?
-   */
   public static int[] toARGB(byte[] yuv, int width, int height) {
     int[] argb = new int[width * height];
     final int frameSize = width * height;
