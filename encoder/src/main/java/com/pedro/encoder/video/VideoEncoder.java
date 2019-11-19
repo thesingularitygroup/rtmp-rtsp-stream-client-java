@@ -140,6 +140,9 @@ public class VideoEncoder extends BaseEncoder implements GetCameraData {
         videoFormat.setInteger("rotation-degrees", rotation);
       }
       codec.configure(videoFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
+      // after configure the codec's video format is now set
+      getVideoData.onVideoFormat(codec.getOutputFormat());
+
       running = false;
       if (formatVideoEncoder == FormatVideoEncoder.SURFACE
           && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
