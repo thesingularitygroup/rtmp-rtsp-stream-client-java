@@ -126,8 +126,8 @@ public class VideoEncoder extends BaseEncoder implements GetCameraData {
         videoFormat.setInteger(MediaFormat.KEY_HEIGHT, width);
       } else {
         resolution = width + "x" + height;
-        videoFormat.setInteger(MediaFormat.KEY_WIDTH, height);
-        videoFormat.setInteger(MediaFormat.KEY_HEIGHT, width);
+        videoFormat.setInteger(MediaFormat.KEY_WIDTH, width);
+        videoFormat.setInteger(MediaFormat.KEY_HEIGHT, height);
       }
       Log.i(TAG, "Prepare video info: " + this.formatVideoEncoder.name() + ", " + resolution);
       videoFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT,
