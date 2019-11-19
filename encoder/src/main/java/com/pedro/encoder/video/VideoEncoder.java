@@ -12,6 +12,7 @@ import android.util.Log;
 import android.util.Pair;
 import android.view.Surface;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import com.pedro.encoder.BaseEncoder;
 import com.pedro.encoder.Frame;
@@ -77,7 +78,7 @@ public class VideoEncoder extends BaseEncoder implements GetCameraData {
   public boolean prepareVideoEncoder(int width, int height, int fps, int bitRate, int rotation,
       boolean hardwareRotation, int iFrameInterval, FormatVideoEncoder formatVideoEncoder) {
     return prepareVideoEncoder(width, height, fps, bitRate, rotation, hardwareRotation, iFrameInterval,
-            formatVideoEncoder, false);
+            formatVideoEncoder, null);
   }
   /**
    * Prepare encoder with custom parameters and receive callback to onVideoFormat
@@ -85,7 +86,7 @@ public class VideoEncoder extends BaseEncoder implements GetCameraData {
    */
   public boolean prepareVideoEncoder(int width, int height, int fps, int bitRate, int rotation,
       boolean hardwareRotation, int iFrameInterval, FormatVideoEncoder formatVideoEncoder,
-                                     boolean callbackCanModify) {
+                                     @Nullable MediaFormat videoFormat) {
     this.width = width;
     this.height = height;
     this.fps = fps;
@@ -109,16 +110,24 @@ public class VideoEncoder extends BaseEncoder implements GetCameraData {
         Log.e(TAG, "Valid encoder not found");
         return false;
       }
-      MediaFormat videoFormat;
+
+      if (videoFormat == null) {
+        videoFormat = MediaFormat.createVideoFormat(type, width, height);
+      } else {
+        videoFormat.setString(MediaFormat.KEY_MIME, type);
+      }
+
       //if you dont use mediacodec rotation you need swap width and height in rotation 90 or 270
       // for correct encoding resolution
       String resolution;
       if (!hardwareRotation && (rotation == 90 || rotation == 270)) {
         resolution = height + "x" + width;
-        videoFormat = MediaFormat.createVideoFormat(type, height, width);
+        videoFormat.setInteger(MediaFormat.KEY_WIDTH, height);
+        videoFormat.setInteger(MediaFormat.KEY_HEIGHT, width);
       } else {
         resolution = width + "x" + height;
-        videoFormat = MediaFormat.createVideoFormat(type, width, height);
+        videoFormat.setInteger(MediaFormat.KEY_WIDTH, height);
+        videoFormat.setInteger(MediaFormat.KEY_HEIGHT, width);
       }
       Log.i(TAG, "Prepare video info: " + this.formatVideoEncoder.name() + ", " + resolution);
       videoFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT,
@@ -129,9 +138,6 @@ public class VideoEncoder extends BaseEncoder implements GetCameraData {
       videoFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, iFrameInterval);
       if (hardwareRotation) {
         videoFormat.setInteger("rotation-degrees", rotation);
-      }
-      if (callbackCanModify) {
-        getVideoData.onVideoFormat(videoFormat);
       }
       codec.configure(videoFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
       running = false;
@@ -199,7 +205,7 @@ public class VideoEncoder extends BaseEncoder implements GetCameraData {
   public void reset() {
     stop();
     prepareVideoEncoder(width, height, fps, bitRate, rotation, hardwareRotation, iFrameInterval,
-        formatVideoEncoder);
+        formatVideoEncoder, null);
     start(false);
   }
 
@@ -219,7 +225,7 @@ public class VideoEncoder extends BaseEncoder implements GetCameraData {
    */
   public boolean prepareVideoEncoder() {
     return prepareVideoEncoder(width, height, fps, bitRate, rotation, false, iFrameInterval,
-        formatVideoEncoder, false);
+        formatVideoEncoder, null);
   }
 
   @RequiresApi(api = Build.VERSION_CODES.KITKAT)
