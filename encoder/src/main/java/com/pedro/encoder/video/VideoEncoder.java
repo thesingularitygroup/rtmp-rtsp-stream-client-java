@@ -76,6 +76,16 @@ public class VideoEncoder extends BaseEncoder implements GetCameraData {
    */
   public boolean prepareVideoEncoder(int width, int height, int fps, int bitRate, int rotation,
       boolean hardwareRotation, int iFrameInterval, FormatVideoEncoder formatVideoEncoder) {
+    return prepareVideoEncoder(width, height, fps, bitRate, rotation, hardwareRotation, iFrameInterval,
+            formatVideoEncoder, false);
+  }
+  /**
+   * Prepare encoder with custom parameters and receive callback to onVideoFormat
+   * so you can apply changes to the MediaFormat before it is used.
+   */
+  public boolean prepareVideoEncoder(int width, int height, int fps, int bitRate, int rotation,
+      boolean hardwareRotation, int iFrameInterval, FormatVideoEncoder formatVideoEncoder,
+                                     boolean callbackCanModify) {
     this.width = width;
     this.height = height;
     this.fps = fps;
@@ -119,6 +129,9 @@ public class VideoEncoder extends BaseEncoder implements GetCameraData {
       videoFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, iFrameInterval);
       if (hardwareRotation) {
         videoFormat.setInteger("rotation-degrees", rotation);
+      }
+      if (callbackCanModify) {
+        getVideoData.onVideoFormat(videoFormat);
       }
       codec.configure(videoFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
       running = false;
@@ -206,7 +219,7 @@ public class VideoEncoder extends BaseEncoder implements GetCameraData {
    */
   public boolean prepareVideoEncoder() {
     return prepareVideoEncoder(width, height, fps, bitRate, rotation, false, iFrameInterval,
-        formatVideoEncoder);
+        formatVideoEncoder, false);
   }
 
   @RequiresApi(api = Build.VERSION_CODES.KITKAT)
