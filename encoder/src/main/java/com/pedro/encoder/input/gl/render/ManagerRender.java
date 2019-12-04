@@ -48,7 +48,9 @@ public class ManagerRender {
     for (int i = 0; i < numFilters; i++) {
       int textId = i == 0 ? cameraRender.getTexId() : baseFilterRender.get(i - 1).getTexId();
       baseFilterRender.get(i).setPreviousTexId(textId);
-      baseFilterRender.get(i).initGl(width, height, context, previewWidth, previewHeight);
+      int largerWidth = Math.max(previewWidth, width);
+      int largerHeight = Math.max(previewHeight, height);
+      baseFilterRender.get(i).initGl(largerWidth, largerHeight, context, previewWidth, previewHeight);
       baseFilterRender.get(i).initFBOLink();
     }
     screenRender.setStreamSize(encoderWidth, encoderHeight);

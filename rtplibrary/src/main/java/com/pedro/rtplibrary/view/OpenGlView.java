@@ -114,7 +114,10 @@ public class OpenGlView extends OpenGlViewBase {
           frameAvailable = false;
           surfaceManager.makeCurrent();
           managerRender.updateFrame();
+          // draw camera at preview size, then draw filters at encoder size
           managerRender.drawOffScreen();
+          // draw the the last filter (which contains result of all filters)
+          // will be scaled correctly to fit the preview size
           managerRender.drawScreen(previewWidth, previewHeight, keepAspectRatio);
           surfaceManager.swapBuffer();
           if (takePhotoCallback != null) {
