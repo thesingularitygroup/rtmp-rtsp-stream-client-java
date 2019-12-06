@@ -3,8 +3,8 @@ package com.pedro.encoder.input.gl.render;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.os.Build;
-import androidx.annotation.RequiresApi;
 import android.view.Surface;
+import androidx.annotation.RequiresApi;
 import com.pedro.encoder.input.gl.render.filters.BaseFilterRender;
 import com.pedro.encoder.input.gl.render.filters.NoFilterRender;
 import java.util.ArrayList;
@@ -69,7 +69,10 @@ public class ManagerRender {
 
   public void release() {
     cameraRender.release();
-    for (BaseFilterRender baseFilterRender : baseFilterRender) baseFilterRender.release();
+    for (int i = 0; i < this.baseFilterRender.size(); i++) {
+      this.baseFilterRender.get(i).release();
+      this.baseFilterRender.set(i, new NoFilterRender());
+    }
     screenRender.release();
   }
 
@@ -98,8 +101,8 @@ public class ManagerRender {
     final RenderHandler renderHandler = this.baseFilterRender.get(position).getRenderHandler();
     this.baseFilterRender.get(position).release();
     this.baseFilterRender.set(position, baseFilterRender);
-    this.baseFilterRender.get(position).initGl(width, height, context, previewWidth, previewHeight);
     this.baseFilterRender.get(position).setPreviousTexId(id);
+    this.baseFilterRender.get(position).initGl(width, height, context, previewWidth, previewHeight);
     this.baseFilterRender.get(position).setRenderHandler(renderHandler);
   }
 
@@ -109,5 +112,11 @@ public class ManagerRender {
 
   public void setCameraFlip(boolean isFlipHorizontal, boolean isFlipVertical) {
     cameraRender.setFlip(isFlipHorizontal, isFlipVertical);
+  }
+
+  public void setPreviewSize(int previewWidth, int previewHeight) {
+    for (int i = 0; i < this.baseFilterRender.size(); i++) {
+      this.baseFilterRender.get(i).setPreviewSize(previewWidth, previewHeight);
+    }
   }
 }
