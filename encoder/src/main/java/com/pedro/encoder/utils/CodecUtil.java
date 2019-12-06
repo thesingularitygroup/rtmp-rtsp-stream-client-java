@@ -9,10 +9,6 @@ import java.util.List;
 
 /**
  * Created by pedro on 14/02/18.
- *
- * Two methods are adapted from google/ExoPlayer source code:
- *   isHardwareAccelerated
- *   isSoftwareOnly
  */
 
 public class CodecUtil {
@@ -197,38 +193,6 @@ public class CodecUtil {
       }
     }
     return mediaCodecInfoSoftware;
-  }
-
-  /* Adapted from google/ExoPlayer
-   * https://github.com/google/ExoPlayer/commit/48555550d7fcf6953f2382466818c74092b26355
-   */
-  private static boolean isHardwareAccelerated(MediaCodecInfo codecInfo) {
-    if (Build.VERSION.SDK_INT >= 29) {
-      return codecInfo.isHardwareAccelerated();
-    }
-    // codecInfo.isHardwareAccelerated() != codecInfo.isSoftwareOnly() is not necessarily true.
-    // However, we assume this to be true as an approximation.
-    return !isSoftwareOnly(codecInfo);
-  }
-
-  /* Adapted from google/ExoPlayer
-   * https://github.com/google/ExoPlayer/commit/48555550d7fcf6953f2382466818c74092b26355
-   */
-  private static boolean isSoftwareOnly(MediaCodecInfo mediaCodecInfo) {
-    if (Build.VERSION.SDK_INT > 29) {
-      return mediaCodecInfo.isSoftwareOnly();
-    }
-    String name = mediaCodecInfo.getName().toLowerCase();
-    if (name.startsWith("arc.")) { // App Runtime for Chrome (ARC) codecs
-      return false;
-    }
-    return name.startsWith("omx.google.")
-            || name.startsWith("omx.ffmpeg.")
-            || (name.startsWith("omx.sec.") && name.contains(".sw."))
-            || name.equals("omx.qcom.video.decoder.hevcswvdec")
-            || name.startsWith("c2.android.")
-            || name.startsWith("c2.google.")
-            || (!name.startsWith("omx.") && !name.startsWith("c2."));
   }
 
   /**
