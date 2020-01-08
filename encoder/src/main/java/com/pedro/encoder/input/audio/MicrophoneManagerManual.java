@@ -43,7 +43,7 @@ public class MicrophoneManagerManual extends MicrophoneManager {
   public int read(ByteBuffer directBuffer, int numBytes) {
     directBuffer.rewind();
     // write to the buffer and return number of bytes written.
-    return audioRecord.read(directBuffer, directBuffer.remaining());
+    return audioRecord.read(directBuffer, numBytes);
   }
 
   /**
