@@ -135,13 +135,19 @@ public class SurfaceManager {
    * Discards all resources held by this class, notably the EGL context.
    */
   public void release() {
+    Log.i("SurfaceManager", "SurfaceManager.release()");
     if (eglDisplay != EGL14.EGL_NO_DISPLAY) {
+      Log.i("SurfaceManager", "release egl context");
       EGL14.eglMakeCurrent(eglDisplay, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_SURFACE,
           EGL14.EGL_NO_CONTEXT);
       EGL14.eglDestroySurface(eglDisplay, eglSurface);
       EGL14.eglDestroyContext(eglDisplay, eglContext);
+      GlUtil.checkEglError("egl destroy stuff");
       EGL14.eglReleaseThread();
+      GlUtil.checkEglError("egl release thread");
       EGL14.eglTerminate(eglDisplay);
+      GlUtil.checkEglError("egl terminate display");
+      Log.i("SurfaceManager", "SurfaceManager.release() done.");
     }
     eglDisplay = EGL14.EGL_NO_DISPLAY;
     eglContext = EGL14.EGL_NO_CONTEXT;
