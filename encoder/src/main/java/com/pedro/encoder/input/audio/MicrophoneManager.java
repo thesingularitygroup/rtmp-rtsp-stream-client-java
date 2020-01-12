@@ -147,13 +147,6 @@ public class MicrophoneManager {
   }
 
   /**
-   * Get the internal pcm buffer that contains the audio data.
-   */
-  public ByteBuffer getDirectPcmBuffer() {
-    return this.pcmBuffer;
-  }
-
-  /**
    * Get PCM buffer size
    */
   private int getPcmBufferSize() {
