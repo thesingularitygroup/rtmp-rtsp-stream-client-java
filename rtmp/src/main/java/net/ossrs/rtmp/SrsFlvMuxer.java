@@ -6,8 +6,6 @@ import android.os.Looper;
 import android.os.Process;
 import android.util.Log;
 import com.github.faucamp.simplertmp.DefaultRtmpPublisher;
-import com.github.faucamp.simplertmp.RtmpPublisher;
-
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.concurrent.BlockingQueue;
@@ -19,8 +17,6 @@ import java.util.concurrent.TimeUnit;
  * Updated by leoma on 4/1/16.
  * modified by pedro
  * to POST the h.264/avc annexb frame over RTMP.
- * modified by Troy
- * to accept any RtmpPublisher implementation.
  *
  * Usage:
  * muxer = new SrsRtmp("rtmp://ossrs.net/live/yasea");
@@ -49,7 +45,6 @@ import java.util.concurrent.TimeUnit;
  * muxer.stop();
  * muxer.release();
  */
-
 public class SrsFlvMuxer {
 
   private static final String TAG = "SrsFlvMuxer";
@@ -57,7 +52,7 @@ public class SrsFlvMuxer {
   private static final int VIDEO_ALLOC_SIZE = 128 * 1024;
   private static final int AUDIO_ALLOC_SIZE = 4 * 1024;
   private volatile boolean connected = false;
-  private RtmpPublisher publisher;
+  private DefaultRtmpPublisher publisher;
   private Thread worker;
   private SrsFlv flv = new SrsFlv();
   private boolean needToFindKeyFrame = true;
@@ -85,14 +80,10 @@ public class SrsFlvMuxer {
   /**
    * constructor.
    */
-  public SrsFlvMuxer(ConnectCheckerRtmp connectCheckerRtmp, RtmpPublisher publisher) {
-    this.connectCheckerRtmp = connectCheckerRtmp;
-    this.publisher = publisher;
-    handler = new Handler(Looper.getMainLooper());
-  }
-
   public SrsFlvMuxer(ConnectCheckerRtmp connectCheckerRtmp) {
-    this(connectCheckerRtmp, new DefaultRtmpPublisher(connectCheckerRtmp));
+    this.connectCheckerRtmp = connectCheckerRtmp;
+    publisher = new DefaultRtmpPublisher(connectCheckerRtmp);
+    handler = new Handler(Looper.getMainLooper());
   }
 
   public void setProfileIop(byte profileIop) {
