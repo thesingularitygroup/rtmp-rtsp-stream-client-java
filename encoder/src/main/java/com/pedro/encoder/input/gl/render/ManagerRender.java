@@ -37,23 +37,27 @@ public class ManagerRender {
     screenRender = new ScreenRender();
   }
 
-  public void initGl(Context context, int encoderWidth, int encoderHeight, int previewWidth,
-      int previewHeight) {
+  /**
+   * @param cameraWidth internal rendering width of the camera's surface texture
+   * @param cameraHeight internal rendering height of the camera's surface texture
+   */
+  public void initGl(Context context, int cameraWidth, int cameraHeight, int previewWidth,
+                     int previewHeight) {
     this.context = context;
-    this.width = encoderWidth;
-    this.height = encoderHeight;
+    this.width = cameraWidth;
+    this.height = cameraHeight;
     this.previewWidth = previewWidth;
     this.previewHeight = previewHeight;
     cameraRender.initGl(width, height, context, previewWidth, previewHeight);
     for (int i = 0; i < numFilters; i++) {
       int textId = i == 0 ? cameraRender.getTexId() : baseFilterRender.get(i - 1).getTexId();
       baseFilterRender.get(i).setPreviousTexId(textId);
-      int largerWidth = Math.max(previewWidth, width);
-      int largerHeight = Math.max(previewHeight, height);
-      baseFilterRender.get(i).initGl(largerWidth, largerHeight, context, previewWidth, previewHeight);
+      baseFilterRender.get(i).initGl(width, height, context, previewWidth, previewHeight);
       baseFilterRender.get(i).initFBOLink();
     }
-    screenRender.setStreamSize(encoderWidth, encoderHeight);
+    // set size as rendered by drawOffScreen
+    // screenRender is always drawn after drawOffScreen() - this is used to calculate scaling
+    screenRender.setOffScreenSize(cameraWidth, cameraHeight);
     screenRender.setTexId(baseFilterRender.get(numFilters - 1).getTexId());
     screenRender.initGl(context);
   }

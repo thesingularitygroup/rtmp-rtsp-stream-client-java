@@ -128,7 +128,7 @@ public class ScreenRender {
     return AAEnabled;
   }
 
-  public void setStreamSize(int streamWidth, int streamHeight) {
+  public void setOffScreenSize(int streamWidth, int streamHeight) {
     this.streamWidth = streamWidth;
     this.streamHeight = streamHeight;
   }

@@ -130,7 +130,7 @@ public class OpenGlView extends OpenGlViewBase {
     releaseSurfaceManager();
     surfaceManager = new SurfaceManager(getHolder().getSurface());
     surfaceManager.makeCurrent();
-    managerRender.initGl(getContext(), encoderWidth, encoderHeight, previewWidth, previewHeight);
+    managerRender.initGl(getContext(), cameraRenderWidth, cameraRenderHeight, previewWidth, previewHeight);
     managerRender.getSurfaceTexture().setOnFrameAvailableListener(this);
     semaphore.release();
     try {
