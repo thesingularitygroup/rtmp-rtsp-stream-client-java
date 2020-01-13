@@ -35,6 +35,8 @@ public class ScreenRender {
   private boolean AAEnabled = false;  //FXAA enable/disable
 
   private int texId;
+  private float[] rotationMatrix = new float[16];
+  private float[] scaleMatrix = new float[16];
 
   private int program = -1;
   private int uMVPMatrixHandle = -1;
@@ -56,6 +58,7 @@ public class ScreenRender {
     squareVertex.put(squareVertexData).position(0);
     Matrix.setIdentityM(MVPMatrix, 0);
     Matrix.setIdentityM(STMatrix, 0);
+    setRotation(0);
   }
 
   public void initGl(Context context) {
@@ -128,5 +131,23 @@ public class ScreenRender {
   public void setStreamSize(int streamWidth, int streamHeight) {
     this.streamWidth = streamWidth;
     this.streamHeight = streamHeight;
+  }
+
+  public void setRotation(int rotation) {
+    Matrix.setIdentityM(rotationMatrix, 0);
+    Matrix.rotateM(rotationMatrix, 0, rotation, 0f, 0f, -1f);
+    update();
+  }
+
+  public void setFlip(boolean isFlipHorizontal, boolean isFlipVertical) {
+    Matrix.setIdentityM(scaleMatrix, 0);
+    Matrix.scaleM(scaleMatrix, 0, isFlipHorizontal ? -1f : 1f, isFlipVertical ? -1f : 1f, 1f);
+    update();
+  }
+
+  private void update() {
+    Matrix.setIdentityM(MVPMatrix, 0);
+    Matrix.multiplyMM(MVPMatrix, 0, scaleMatrix, 0, MVPMatrix, 0);
+    Matrix.multiplyMM(MVPMatrix, 0, rotationMatrix, 0, MVPMatrix, 0);
   }
 }

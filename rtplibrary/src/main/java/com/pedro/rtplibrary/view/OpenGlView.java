@@ -28,6 +28,7 @@ public class OpenGlView extends OpenGlViewBase {
   private boolean AAEnabled = false;
   private boolean keepAspectRatio = false;
   private boolean isFlipHorizontal = false, isFlipVertical = false;
+  private boolean isOutputFlipHorizontal = false, isOutputFlipVertical = false;
 
   public OpenGlView(Context context) {
     super(context);
@@ -93,8 +94,22 @@ public class OpenGlView extends OpenGlViewBase {
     this.keepAspectRatio = keepAspectRatio;
   }
 
+  /**
+   * Set flip of the camera feed.
+   * This will change how the preview looks and also the streamed/recorded video.
+   */
   public void setCameraFlip(boolean isFlipHorizontal, boolean isFlipVertical) {
     managerRender.setCameraFlip(isFlipHorizontal, isFlipVertical);
+  }
+
+  /**
+   * Set flip of the output video.
+   * This will change how the streamed/recorded video will look like.
+   * The preview on screen will not be affected.
+   */
+  public void setOutputFlip(boolean isFlipHorizontal, boolean isFlipVertical) {
+    this.isOutputFlipHorizontal = isFlipHorizontal;
+    this.isOutputFlipVertical = isFlipVertical;
   }
 
   @Override
@@ -126,9 +141,11 @@ public class OpenGlView extends OpenGlViewBase {
           managerRender.updateFrame();
           // draw camera at preview size, then draw filters at encoder size
           managerRender.drawOffScreen();
+          // do not flip the preview
+          managerRender.setScreenFlip(false, false);
           // draw the the last filter (which contains result of all filters)
           // will be scaled correctly to fit the preview size
-          managerRender.drawScreen(previewWidth, previewHeight, keepAspectRatio);
+          managerRender.drawScreen(previewWidth, previewHeight, keepAspectRatio); //PREVIEW
           surfaceManager.swapBuffer();
           if (takePhotoCallback != null) {
             takePhotoCallback.onTakePhoto(
@@ -138,7 +155,10 @@ public class OpenGlView extends OpenGlViewBase {
           synchronized (sync) {
             if (surfaceManagerEncoder != null  && !fpsLimiter.limitFPS()) {
               surfaceManagerEncoder.makeCurrent();
-              managerRender.drawScreen(encoderWidth, encoderHeight, false);
+              // flip the output as specified by setOutputFlip
+              managerRender.setScreenFlip(isOutputFlipHorizontal, isOutputFlipVertical);
+              // draw to output video
+              managerRender.drawScreen(encoderWidth, encoderHeight, false); //OUTPUT (currently flipped)
               surfaceManagerEncoder.swapBuffer();
             }
           }
