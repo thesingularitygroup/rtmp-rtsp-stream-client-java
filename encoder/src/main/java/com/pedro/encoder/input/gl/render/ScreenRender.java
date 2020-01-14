@@ -51,14 +51,15 @@ public class ScreenRender {
   private int streamHeight;
 
   public ScreenRender() {
+    Matrix.setIdentityM(MVPMatrix, 0);
+    Matrix.setIdentityM(STMatrix, 0);
     squareVertex =
         ByteBuffer.allocateDirect(squareVertexData.length * BaseRenderOffScreen.FLOAT_SIZE_BYTES)
             .order(ByteOrder.nativeOrder())
             .asFloatBuffer();
     squareVertex.put(squareVertexData).position(0);
-    Matrix.setIdentityM(MVPMatrix, 0);
-    Matrix.setIdentityM(STMatrix, 0);
     setRotation(0);
+    setFlip(false, false);
   }
 
   public void initGl(Context context) {
