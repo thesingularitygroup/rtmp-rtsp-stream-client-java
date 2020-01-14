@@ -141,8 +141,6 @@ public class OpenGlView extends OpenGlViewBase {
           managerRender.updateFrame();
           // draw camera at preview size, then draw filters at encoder size
           managerRender.drawOffScreen();
-          // do not flip the preview
-          managerRender.setScreenFlip(false, false);
           // draw the the last filter (which contains result of all filters)
           // will be scaled correctly to fit the preview size
           managerRender.drawScreen(previewWidth, previewHeight, keepAspectRatio); //PREVIEW
@@ -159,6 +157,8 @@ public class OpenGlView extends OpenGlViewBase {
               managerRender.setScreenFlip(isOutputFlipHorizontal, isOutputFlipVertical);
               // draw to output video
               managerRender.drawScreen(encoderWidth, encoderHeight, false); //OUTPUT (currently flipped)
+              // disable flipping (so to not affect the preview)
+              managerRender.setScreenFlip(false, false);
               surfaceManagerEncoder.swapBuffer();
             }
           }
