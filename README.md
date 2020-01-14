@@ -1,3 +1,15 @@
+## This fork 
+
+- `develop` is main branch
+- `master` follows source repo
+
+### Building aars
+$REPO is path to root of your local cos repo.
+```bash
+./gradlew assembleRelease \
+  && cp -vrf ./*/build/outputs/aar/*-release.aar $REPO/AndroidPlugins/golive/libs
+```
+
 # rtmp-rtsp-stream-client-java
 
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-rtmp%20rtsp%20stream%20client%20java-green.svg?style=true)](https://android-arsenal.com/details/1/5333)
