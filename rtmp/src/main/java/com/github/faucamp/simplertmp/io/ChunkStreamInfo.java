@@ -1,5 +1,7 @@
 package com.github.faucamp.simplertmp.io;
 
+import android.os.SystemClock;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -24,7 +26,7 @@ public class ChunkStreamInfo {
   private RtmpHeader prevHeaderRx;
   private RtmpHeader prevHeaderTx;
   private static long sessionBeginTimestamp;
-  private long realLastTimestamp = System.nanoTime() / 1000000;  // Do not use wall time!
+  private long realLastTimestamp = SystemClock.elapsedRealtimeNanos() / 1000000;  // Do not use wall time!
   private ByteArrayOutputStream baos = new ByteArrayOutputStream(1024 * 128);
 
   /** @return the previous header that was received on this channel, or <code>null</code> if no previous header was received */
@@ -53,17 +55,17 @@ public class ChunkStreamInfo {
 
   /** Sets the session beginning timestamp for all chunks */
   public static void markSessionTimestampTx() {
-    sessionBeginTimestamp = System.nanoTime() / 1000000;
+    sessionBeginTimestamp = SystemClock.elapsedRealtimeNanos() / 1000000;
   }
 
   /** Utility method for calculating & synchronizing transmitted timestamps */
   public long markAbsoluteTimestampTx() {
-    return System.nanoTime() / 1000000 - sessionBeginTimestamp;
+    return SystemClock.elapsedRealtimeNanos() / 1000000 - sessionBeginTimestamp;
   }
 
   /** Utility method for calculating & synchronizing transmitted timestamp deltas */
   public long markDeltaTimestampTx() {
-    long currentTimestamp = System.nanoTime() / 1000000;
+    long currentTimestamp = SystemClock.elapsedRealtimeNanos() / 1000000;
     long diffTimestamp = currentTimestamp - realLastTimestamp;
     realLastTimestamp = currentTimestamp;
     return diffTimestamp;

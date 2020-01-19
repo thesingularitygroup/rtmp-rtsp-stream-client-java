@@ -8,6 +8,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.SystemClock;
 import android.util.Log;
 import android.util.Pair;
 import android.view.Surface;
@@ -144,7 +145,7 @@ public class VideoEncoder extends BaseEncoder implements GetCameraData {
   public void start(boolean resetTs) {
     spsPpsSetted = false;
     if (resetTs) {
-      presentTimeUs = System.nanoTime() / 1000;
+      presentTimeUs = SystemClock.elapsedRealtimeNanos() / 1000;
       fpsLimiter.setFPS(fps);
     }
     if (formatVideoEncoder != FormatVideoEncoder.SURFACE) {
@@ -461,7 +462,7 @@ public class VideoEncoder extends BaseEncoder implements GetCameraData {
   @Override
   protected void sendBuffer(@NonNull ByteBuffer byteBuffer,
       @NonNull MediaCodec.BufferInfo bufferInfo) {
-    bufferInfo.presentationTimeUs = System.nanoTime() / 1000 - presentTimeUs;
+    bufferInfo.presentationTimeUs = SystemClock.elapsedRealtimeNanos() / 1000 - presentTimeUs;
     getVideoData.getVideoData(byteBuffer, bufferInfo);
   }
 
