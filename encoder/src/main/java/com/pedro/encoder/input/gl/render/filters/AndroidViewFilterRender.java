@@ -90,7 +90,7 @@ public class AndroidViewFilterRender extends BaseFilterRender {
       mainHandler.post(new Runnable() {
         @Override
         public void run() {
-          Canvas canvas = surface.lockCanvas(null);
+          Canvas canvas = surface.lockHardwareCanvas();
           canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
           canvas.translate(positionX, positionY);
           canvas.rotate(rotation, viewX / 2f, viewY / 2f);

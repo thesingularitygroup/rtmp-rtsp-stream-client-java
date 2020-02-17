@@ -12,6 +12,9 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.View;
 import android.view.WindowManager;
+import android.webkit.WebChromeClient;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -110,6 +113,12 @@ public class OpenGlRtmpActivity extends AppCompatActivity
     rtmpCamera1 = new RtmpCamera1(openGlView, this);
     openGlView.getHolder().addCallback(this);
     openGlView.setOnTouchListener(this);
+
+    WebView mWebView = findViewById(R.id.web_view);
+    mWebView.getSettings().setJavaScriptEnabled(true);
+    mWebView.setWebViewClient(new WebViewClient());
+    mWebView.setWebChromeClient(new WebChromeClient());
+    mWebView.loadUrl("https://www.youtube.com/watch?v=0I647GU3Jsc&list=RDEMzMxPuaGyofN40xcgHuZAbw&index=7");
   }
 
   @Override
@@ -142,7 +151,7 @@ public class OpenGlRtmpActivity extends AppCompatActivity
         return true;
       case R.id.android_view:
         AndroidViewFilterRender androidViewFilterRender = new AndroidViewFilterRender();
-        androidViewFilterRender.setView(findViewById(R.id.switch_camera));
+        androidViewFilterRender.setView(findViewById(R.id.web_view));
         rtmpCamera1.getGlInterface().setFilter(androidViewFilterRender);
         return true;
       case R.id.basic_deformation:
