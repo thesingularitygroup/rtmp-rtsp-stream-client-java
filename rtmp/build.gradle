@@ -6,7 +6,7 @@ android {
   compileSdkVersion 29
 
   defaultConfig {
-    minSdkVersion 16
+    minSdkVersion 17
     targetSdkVersion 29
     versionCode 175
     versionName "1.7.5"
@@ -18,4 +18,6 @@ android {
   }
 }
 
-dependencies {}
+dependencies {
+  api 'androidx.annotation:annotation:1.1.0'
+}

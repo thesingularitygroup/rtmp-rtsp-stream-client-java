@@ -4,6 +4,8 @@ import android.media.MediaCodec;
 import android.media.MediaFormat;
 import android.media.MediaMuxer;
 import android.os.Build;
+import android.os.SystemClock;
+
 import androidx.annotation.RequiresApi;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -83,7 +85,7 @@ public class RecordController {
 
   public void pauseRecord() {
     if (status == Status.RECORDING) {
-      pauseMoment = System.nanoTime() / 1000;
+      pauseMoment = SystemClock.elapsedRealtimeNanos() / 1000;
       status = Status.PAUSED;
       if (listener != null) listener.onStatusChange(status);
     }
@@ -91,7 +93,7 @@ public class RecordController {
 
   public void resumeRecord() {
     if (status == Status.PAUSED) {
-      pauseTime += System.nanoTime() / 1000 - pauseMoment;
+      pauseTime += SystemClock.elapsedRealtimeNanos() / 1000 - pauseMoment;
       status = Status.RESUMED;
       if (listener != null) listener.onStatusChange(status);
     }

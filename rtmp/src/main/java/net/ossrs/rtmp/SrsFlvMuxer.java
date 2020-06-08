@@ -6,6 +6,8 @@ import android.os.Looper;
 import android.os.Process;
 import android.util.Log;
 import com.github.faucamp.simplertmp.DefaultRtmpPublisher;
+import com.github.faucamp.simplertmp.RtmpPublisher;
+
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.concurrent.BlockingQueue;
@@ -17,6 +19,8 @@ import java.util.concurrent.TimeUnit;
  * Updated by leoma on 4/1/16.
  * modified by pedro
  * to POST the h.264/avc annexb frame over RTMP.
+ * modified by Troy
+ * to accept any RtmpPublisher implementation.
  *
  * Usage:
  * muxer = new SrsRtmp("rtmp://ossrs.net/live/yasea");
@@ -45,6 +49,7 @@ import java.util.concurrent.TimeUnit;
  * muxer.stop();
  * muxer.release();
  */
+
 public class SrsFlvMuxer {
 
   private static final String TAG = "SrsFlvMuxer";
@@ -52,7 +57,7 @@ public class SrsFlvMuxer {
   private static final int VIDEO_ALLOC_SIZE = 128 * 1024;
   private static final int AUDIO_ALLOC_SIZE = 4 * 1024;
   private volatile boolean connected = false;
-  private DefaultRtmpPublisher publisher;
+  private RtmpPublisher publisher;
   private Thread worker;
   private SrsFlv flv = new SrsFlv();
   private boolean needToFindKeyFrame = true;
@@ -80,10 +85,14 @@ public class SrsFlvMuxer {
   /**
    * constructor.
    */
-  public SrsFlvMuxer(ConnectCheckerRtmp connectCheckerRtmp) {
+  public SrsFlvMuxer(ConnectCheckerRtmp connectCheckerRtmp, RtmpPublisher publisher) {
     this.connectCheckerRtmp = connectCheckerRtmp;
-    publisher = new DefaultRtmpPublisher(connectCheckerRtmp);
+    this.publisher = publisher;
     handler = new Handler(Looper.getMainLooper());
+  }
+
+  public SrsFlvMuxer(ConnectCheckerRtmp connectCheckerRtmp) {
+    this(connectCheckerRtmp, new DefaultRtmpPublisher(connectCheckerRtmp));
   }
 
   public void setProfileIop(byte profileIop) {
@@ -363,13 +372,18 @@ public class SrsFlvMuxer {
     public final static int Video = 9;
   }
 
-  private class SrsCodecAudioSampleRate {
-    public final static int R5512 = 5512;
+  private class AudioSampleRate {
     public final static int R11025 = 11025;
-    public final static int R22050 = 22050;
-    public final static int R44100 = 44100;
-    public final static int R32000 = 32000;
+    public final static int R12000 = 12000;
     public final static int R16000 = 16000;
+    public final static int R22050 = 22050;
+    public final static int R24000 = 24000;
+    public final static int R32000 = 32000;
+    public final static int R44100 = 44100;
+    public final static int R48000 = 48000;
+    public final static int R64000 = 64000;
+    public final static int R88200 = 88200;
+    public final static int R96000 = 96000;
   }
 
   // E.4.3.1 VIDEODATA
@@ -768,15 +782,46 @@ public class SrsFlvMuxer {
         // 3bits left.
 
         // samplingFrequencyIndex; 4 bslbf
-        byte samplingFrequencyIndex = 0x04; //44100
-        if (sampleRate == SrsCodecAudioSampleRate.R22050) {
-          samplingFrequencyIndex = 0x07;
-        } else if (sampleRate == SrsCodecAudioSampleRate.R11025) {
-          samplingFrequencyIndex = 0x0a;
-        } else if (sampleRate == SrsCodecAudioSampleRate.R32000) {
-          samplingFrequencyIndex = 0x05;
-        } else if (sampleRate == SrsCodecAudioSampleRate.R16000) {
-          samplingFrequencyIndex = 0x08;
+        // For the values refer to https://wiki.multimedia.cx/index.php/MPEG-4_Audio#Sampling_Frequencies
+        byte samplingFrequencyIndex;
+        switch (sampleRate) {
+          case AudioSampleRate.R96000:
+            samplingFrequencyIndex = 0x00;
+            break;
+          case AudioSampleRate.R88200:
+            samplingFrequencyIndex = 0x01;
+            break;
+          case AudioSampleRate.R64000:
+            samplingFrequencyIndex = 0x02;
+            break;
+          case AudioSampleRate.R48000:
+            samplingFrequencyIndex = 0x03;
+            break;
+          case AudioSampleRate.R44100:
+            samplingFrequencyIndex = 0x04;
+            break;
+          case AudioSampleRate.R32000:
+            samplingFrequencyIndex = 0x05;
+            break;
+          case AudioSampleRate.R24000:
+            samplingFrequencyIndex = 0x06;
+            break;
+          case AudioSampleRate.R22050:
+            samplingFrequencyIndex = 0x07;
+            break;
+          case AudioSampleRate.R16000:
+            samplingFrequencyIndex = 0x08;
+            break;
+          case AudioSampleRate.R12000:
+            samplingFrequencyIndex = 0x09;
+            break;
+          case AudioSampleRate.R11025:
+            samplingFrequencyIndex = 0x0a;
+            break;
+          default:
+            // 44100 Hz shall be the fallback value when sampleRate is irregular.
+            // not implemented: other sample rates might be possible with samplingFrequencyIndex = 0x0f.
+            samplingFrequencyIndex = 0x04; // 4: 44100 Hz
         }
         ch |= (samplingFrequencyIndex >> 1) & 0x07;
         audio_tag.put(ch, 2);

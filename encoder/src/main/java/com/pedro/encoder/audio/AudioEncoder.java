@@ -3,6 +3,7 @@ package com.pedro.encoder.audio;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
+import android.os.SystemClock;
 import android.util.Log;
 import androidx.annotation.NonNull;
 import com.pedro.encoder.BaseEncoder;
@@ -91,7 +92,7 @@ public class AudioEncoder extends BaseEncoder implements GetMicrophoneData {
 
   @Override
   public void start(boolean resetTs) {
-    presentTimeUs = System.nanoTime() / 1000;
+    presentTimeUs = SystemClock.elapsedRealtimeNanos() / 1000;
     codec.start();
     running = true;
     Log.i(TAG, "started");

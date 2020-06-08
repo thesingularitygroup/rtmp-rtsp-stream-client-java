@@ -33,6 +33,7 @@ import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.ossrs.rtmp.BitrateManager;
+import net.ossrs.rtmp.BuildConfig;
 import net.ossrs.rtmp.ConnectCheckerRtmp;
 import net.ossrs.rtmp.CreateSSLSocket;
 
@@ -365,6 +366,11 @@ public class RtmpConnection implements RtmpPublisher {
     ecmaArray.setProperty("videodatarate", 0);
     ecmaArray.setProperty("framerate", 0);
     ecmaArray.setProperty("audiodatarate", 0);
+    // @see FLV video_file_format_spec_v10_1.pdf
+    // According to E.4.2.1 AUDIODATA
+    // "If the SoundFormat indicates AAC, the SoundType should be 1 (stereo) and the SoundRate should be 3 (44 kHz).
+    // However, this does not mean that AAC audio in FLV is always stereo, 44 kHz data. Instead, the Flash Player ignores
+    // these values and extracts the channel and sample rate data is encoded in the AAC bit stream."
     ecmaArray.setProperty("audiosamplerate", 44100);
     ecmaArray.setProperty("audiosamplesize", 16);
     ecmaArray.setProperty("stereo", true);
@@ -500,8 +506,10 @@ public class RtmpConnection implements RtmpPublisher {
             .setAbsoluteTimestamp((int) chunkStreamInfo.markAbsoluteTimestampTx());
       }
       rtmpPacket.writeTo(outputStream, rtmpSessionInfo.getTxChunkSize(), chunkStreamInfo);
-      Log.d(TAG,
-          "wrote packet: " + rtmpPacket + ", size: " + rtmpPacket.getHeader().getPacketLength());
+      if (BuildConfig.DEBUG) {
+        Log.d(TAG,
+            "wrote packet: " + rtmpPacket + ", size: " + rtmpPacket.getHeader().getPacketLength());
+      }
       if (rtmpPacket instanceof Command) {
         rtmpSessionInfo.addInvokedCommand(((Command) rtmpPacket).getTransactionId(),
             ((Command) rtmpPacket).getCommandName());

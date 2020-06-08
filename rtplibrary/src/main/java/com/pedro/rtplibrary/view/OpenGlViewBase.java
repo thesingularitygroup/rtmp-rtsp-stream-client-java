@@ -40,6 +40,7 @@ public abstract class OpenGlViewBase extends SurfaceView
   protected final Object sync = new Object();
   protected int previewWidth, previewHeight;
   protected int encoderWidth, encoderHeight;
+  protected int cameraRenderWidth = -1, cameraRenderHeight = -1;
   protected TakePhotoCallback takePhotoCallback;
 
   public OpenGlViewBase(Context context) {
@@ -94,10 +95,28 @@ public abstract class OpenGlViewBase extends SurfaceView
     this.encoderHeight = height;
   }
 
+  /**
+   * Set the internal rendering size of the camera and filters.
+   *
+   * When not set, rendering will default to the encoder size.
+   *
+   * If your preview is pixelated (caused by small encoder size), you may want to set this
+   * to the preview view's width and height.
+   */
+  public void setCameraRenderSize(int width, int height) {
+    this.cameraRenderWidth = width;
+    this.cameraRenderHeight = height;
+  }
+
   @Override
   public void start() {
     synchronized (sync) {
       Log.i(TAG, "Thread started.");
+      // when not specified by setCameraRenderSize, camera renders at dimensions of encoder
+      if (cameraRenderWidth == -1) {
+        cameraRenderWidth = encoderWidth;
+        cameraRenderHeight = encoderHeight;
+      }
       thread = new Thread(this, "glThread");
       running = true;
       thread.start();

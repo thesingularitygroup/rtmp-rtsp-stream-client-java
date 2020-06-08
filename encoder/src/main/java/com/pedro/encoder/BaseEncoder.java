@@ -4,6 +4,8 @@ import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.os.Build;
+import android.os.SystemClock;
+
 import androidx.annotation.NonNull;
 import com.pedro.encoder.utils.CodecUtil;
 import java.nio.ByteBuffer;
@@ -71,7 +73,7 @@ public abstract class BaseEncoder implements EncoderCallback {
       if (frame == null) frame = getInputFrame();
       byteBuffer.clear();
       byteBuffer.put(frame.getBuffer(), frame.getOffset(), frame.getSize());
-      long pts = System.nanoTime() / 1000 - presentTimeUs;
+      long pts = SystemClock.elapsedRealtimeNanos() / 1000 - presentTimeUs;
       mediaCodec.queueInputBuffer(inBufferIndex, 0, frame.getSize(), pts, 0);
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();

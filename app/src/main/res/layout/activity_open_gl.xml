@@ -59,4 +59,8 @@
         android:id="@+id/switch_camera"
         />
   </LinearLayout>
+  <WebView
+      android:id="@+id/web_view"
+      android:layout_width="720px"
+      android:layout_height="1280px"/>
 </RelativeLayout>
